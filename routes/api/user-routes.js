@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { User } = require('../../models');
 
-// GET /api/users
+// GET /api/users (all users)
 router.get('/', (req, res) => {
     // access our User model and run .findAll() method)
     User.findAll({
@@ -55,11 +55,37 @@ router.post('/', (req, res) => {
         });
 });
 
+router.post('/login', (req, res) => {
+    // query operation
+    // expects {email: 'lernantino@gmail.com', password: 'password1234'}
+  User.findOne({
+    where: {
+      email: req.body.email
+    }
+  }).then(dbUserData => {
+    if (!dbUserData) {
+      res.status(400).json({ message: 'No user with that email address!' });
+      return;
+    }
+
+    // Verify user
+    const validPassword = dbUserData.checkPassword(req.body.password);
+    
+    if (!validPassword) {
+        res.status(400).json({ message: 'Incorrect password!' });
+        return;
+      }
+      
+      res.json({ user: dbUserData, message: 'You are now logged in!' });
+    });
+});
+
 // PUT /api/users/1
 router.put('/:id', (req, res) => {
 // if req.body has exact key/value pairs to match the model, you can just use `req.body` instead
 // pass req.body to provide the new data we want to use in the update
     User.update(req.body, {
+        individualHooks: true,
         where: {
             // pass req.params.id to indicate where exactly we want the new data to be used
             id: req.params.id
