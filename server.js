@@ -1,6 +1,9 @@
 const express = require('express');
-const routes = require('./routes');
+const routes = require('./controllers');
 const sequelize = require('./config/connection');
+
+// when css was added
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -11,6 +14,18 @@ app.use(express.urlencoded({ extended: true }));
 
 // turn on routes
 app.use(routes);
+
+// after connecting css
+app.use(express.static(path.join(__dirname, 'public')));
+
+
+// connect handlebars.js as template engine choice
+const exphbs = require('express-handlebars');
+const hbs = exphbs.create({});
+
+app.engine('handlebars', hbs.engine);
+app.set('view engine', 'handlebars');
+
 
 // turn on connection to db and server
 // connection with false
