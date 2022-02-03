@@ -1,15 +1,14 @@
-const { DataTypes } = require('sequelize/dist');
-
-// import
-const sequelize = require('../config/connection');
-const { Post, User, Comment } = require('../models');
-
 // set up the main homepage route
 const router = require('express').Router();
+// import
+const sequelize = require('../config/connection');
+const { Post, User, Comment, Vote } = require('../models');
+
 
 // In this case, we're going to take a single "post" object and pass it to the homepage.handlebars template.
 // Each property on the object (id, post_url, title, etc.) becomes available in the template using the Handlebars.js {{ }} syntax.
 router.get('/', (req, res) => {
+  console.log(req.session);
     Post.findAll({
       attributes: [
         'id',
@@ -46,5 +45,15 @@ router.get('/', (req, res) => {
         res.status(500).json(err);
       });
   });
+
+// let's go ahead and test the page out. In order to get this page to render
+router.get('/login', (req, res) => {
+  if (req.session.loggedIn) {
+    res.redirect('/');
+    return;
+  }
+
+  res.render('login');
+});
 
 module.exports = router;

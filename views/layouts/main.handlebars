@@ -10,11 +10,15 @@
 
 <body>
   <div class="wrapper">
-    <header>
-      <h1>
-        <a href="/">Just Tech News</a>
-      </h1>
-    </header>
+  <header>
+    <h1>
+      <a href="/">Just Tech News</a>
+    </h1>
+    <nav>
+      <button id="logout" class="btn-no-style">logout</button>
+      <a href="/login">login</a>
+    </nav>
+  </header>
     <main>
 {{!-- This is Handlebars.js syntax for data that will be plugged in later. 
 In this case, the data will be another, smaller template, like the contents of the homepage. --}}
@@ -24,7 +28,6 @@ In this case, the data will be another, smaller template, like the contents of t
       Thanks for visiting!
     </footer>
   </div>
-
+<script src="/javascript/logout.js"></script>
 </body>
-
 </html>

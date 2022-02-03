@@ -3,9 +3,9 @@ const { User, Post, Comment, Vote } = require('../../models');
 
 // GET /api/users (all users)
 router.get('/', (req, res) => {
-    User.findAll({
-      attributes: { exclude: ['password'] }
-    })
+  User.findAll({
+    attributes: { exclude: ['password'] }
+  })
       .then(dbUserData => res.json(dbUserData))
       .catch(err => {
         console.log(err);
@@ -60,12 +60,20 @@ router.get('/', (req, res) => {
       email: req.body.email,
       password: req.body.password
     })
-      .then(dbUserData => res.json(dbUserData))
-      .catch(err => {
-        console.log(err);
-        res.status(500).json(err);
-      });
+      .then(dbUserData => {
+        req.session.save(() => {
+          req.session.user_id = dbUserData.id;
+          req.session.username = dbUserData.username;
+          req.session.loggedIn = true;
+
+          res.json(dbUserData);
+        });
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).json(err);
   });
+});
   
   router.post('/login', (req, res) => {
     // expects {email: 'lernantino@gmail.com', password: 'password1234'}
@@ -85,11 +93,35 @@ router.get('/', (req, res) => {
         res.status(400).json({ message: 'Incorrect password!' });
         return;
       }
-  
-      res.json({ user: dbUserData, message: 'You are now logged in!' });
+
+      req.session.save(() => {
+        // declare session variables
+        req.session.user_id = dbUserData.id;
+        req.session.username = dbUserData.username;
+        req.session.loggedIn = dbUserData.loggedIn;
+
+        res.json({ user: dbUserData, message: 'You are now logged in!' });
+      });
     });
   });
   
+  // logout route
+router.post('/logout', (req, res) => {
+  // use destroy method to clear the session
+  if (req.session.loggedIn) {
+    req.session.destroy(() => {
+      // HTTP 204 No content success status response code indicates that a req has succeeded,
+      // but that the client doesn't need tp navigate away from its current page
+      res.status(204).end();
+    });
+  }
+  else {
+    res.status(404).end();
+  }
+
+});
+
+
   router.put('/:id', (req, res) => {
     // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
   
@@ -131,5 +163,6 @@ router.get('/', (req, res) => {
         res.status(500).json(err);
       });
   });
+
 
 module.exports = router;

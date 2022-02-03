@@ -1,30 +1,41 @@
-const express = require('express');
-const routes = require('./controllers');
-const sequelize = require('./config/connection');
-
 // when css was added
 const path = require('path');
+const express = require('express');
+const session = require = require('express-session');
+// connect handlebars.js as template engine choice
+const exphbs = require('express-handlebars');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const sequelize = require('./config/connection');
+const sequelizeStore = require('connect-session-sequelize')(sessionStore);
 
-// turn on routes
-app.use(routes);
+const sess = {
+    secret: 'Super secret secret',
+    cookie: {},
+    resave: false,
+    saveUninitialzed: true,
+    store: new SequelizeStore({
+        db: sequelize
+    })
+};
 
-// after connecting css
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(session(sess));
 
-
-// connect handlebars.js as template engine choice
-const exphbs = require('express-handlebars');
 const hbs = exphbs.create({});
+
 
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
+
+// middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+// turn on routes
+app.use(routes);
+// after connecting css
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 // turn on connection to db and server
